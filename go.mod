@@ -1,6 +1,6 @@
 module github.com/hiddify/hiddify-core
 
-go 1.21.4
+go 1.21.3
 
 require (
 	github.com/bepass-org/wireguard-go v0.0.16-alpha
