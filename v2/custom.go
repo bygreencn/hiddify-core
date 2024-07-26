@@ -162,6 +162,7 @@ func Parse(in *pb.ParseRequest) (*pb.ParseResponse, error) {
 		Log(pb.LogLevel_FATAL, pb.LogType_CONFIG, err.Error())
 		StopAndAlert(pb.MessageType_UNEXPECTED_ERROR, err.Error())
 	})
+
 	content := in.Content
 	if in.TempPath != "" {
 		contentBytes, err := os.ReadFile(in.TempPath)
@@ -173,7 +174,7 @@ func Parse(in *pb.ParseRequest) (*pb.ParseResponse, error) {
 
 	}
 
-	config, err := config.ParseConfigContent(content, true, false)
+	config, err := config.ParseConfigContent(content, true, nil, false)
 	if err != nil {
 		return &pb.ParseResponse{
 			ResponseCode: pb.ResponseCode_FAILED,
@@ -208,6 +209,12 @@ func ChangeConfigOptions(in *pb.ChangeConfigOptionsRequest) (*pb.CoreInfoRespons
 	}
 	if configOptions.Warp.WireguardConfigStr != "" {
 		err := json.Unmarshal([]byte(configOptions.Warp.WireguardConfigStr), &configOptions.Warp.WireguardConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if configOptions.Warp2.WireguardConfigStr != "" {
+		err := json.Unmarshal([]byte(configOptions.Warp2.WireguardConfigStr), &configOptions.Warp2.WireguardConfig)
 		if err != nil {
 			return nil, err
 		}
