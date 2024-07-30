@@ -5,9 +5,8 @@ go 1.21.4
 require (
 	github.com/bepass-org/warp-plus v0.0.0-00010101000000-000000000000
 	github.com/golang/protobuf v1.5.4
-	github.com/hiddify/ray2sing v0.0.0-20240730060227-b5fbdcfdfd10
+	github.com/hiddify/ray2sing v0.0.0-20240730095124-9b9d265d61dd
 	github.com/kardianos/service v1.2.2
-	github.com/macronut/godivert v0.0.0-20220121081532-78e5dd672daf
 	github.com/sagernet/gomobile v0.1.3
 	github.com/sagernet/sing v0.4.1
 	github.com/sagernet/sing-box v1.8.9
@@ -23,6 +22,7 @@ require (
 require (
 	berty.tech/go-libtor v1.0.385 // indirect
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/caddyserver/certmagic v0.20.0 // indirect
 	github.com/cloudflare/circl v1.3.9 // indirect
@@ -97,7 +97,6 @@ require (
 	github.com/u-root/uio v0.0.0-20230220225925-ffce2a382923 // indirect
 	github.com/v2fly/ss-bloomring v0.0.0-20210312155135-28617310f63e // indirect
 	github.com/vishvananda/netns v0.0.4 // indirect
-	github.com/williamfhe/godivert v0.0.0-20181229124620-a48c5b872c73 // indirect
 	github.com/xtls/reality v0.0.0-20240712055506-48f0b2d5ed6d // indirect
 	github.com/xtls/xray-core v1.8.21 // indirect
 	github.com/zeebo/blake3 v0.2.3 // indirect
@@ -118,7 +117,7 @@ require (
 	lukechampine.com/blake3 v1.3.0 // indirect
 )
 
-replace github.com/sagernet/sing-box => github.com/hiddify/hiddify-sing-box v1.8.9-0.20240727194612-aeb0c78d6aa5
+replace github.com/sagernet/sing-box => github.com/hiddify/hiddify-sing-box v1.8.9-0.20240730122343-cc4e2cf4fb24
 
 replace github.com/xtls/xray-core => github.com/hiddify/xray-core v0.0.0-20240729110224-c3df022f042a
 
