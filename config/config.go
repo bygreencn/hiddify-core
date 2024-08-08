@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/netip"
 	"net/url"
+	"runtime"
 	"strings"
 	"time"
 
@@ -201,8 +202,9 @@ func setOutbounds(options *option.Options, input *option.Options, opt *ConfigOpt
 			URL:       opt.ConnectionTestUrl,
 			Interval:  option.Duration(opt.URLTestInterval.Duration()),
 			// IdleTimeout: option.Duration(opt.URLTestIdleTimeout.Duration()),
-			Tolerance:   1,
-			IdleTimeout: option.Duration(opt.URLTestInterval.Duration().Nanoseconds() * 3),
+			Tolerance:                 1,
+			IdleTimeout:               option.Duration(opt.URLTestInterval.Duration().Nanoseconds() * 3),
+			InterruptExistConnections: true,
 		},
 	}
 	defaultSelect := urlTest.Tag
@@ -216,8 +218,9 @@ func setOutbounds(options *option.Options, input *option.Options, opt *ConfigOpt
 		Type: C.TypeSelector,
 		Tag:  OutboundSelectTag,
 		SelectorOptions: option.SelectorOutboundOptions{
-			Outbounds: append([]string{urlTest.Tag}, tags...),
-			Default:   defaultSelect,
+			Outbounds:                 append([]string{urlTest.Tag}, tags...),
+			Default:                   defaultSelect,
+			InterruptExistConnections: true,
 		},
 	}
 
@@ -307,7 +310,9 @@ func setInbound(options *option.Options, opt *ConfigOptions) {
 		tunInbound := option.Inbound{
 			Type: C.TypeTun,
 			Tag:  InboundTUNTag,
+
 			TunOptions: option.TunInboundOptions{
+
 				Stack:                  opt.TUNStack,
 				MTU:                    opt.MTU,
 				AutoRoute:              true,
@@ -316,7 +321,7 @@ func setInbound(options *option.Options, opt *ConfigOptions) {
 				// GSO:                    runtime.GOOS != "windows",
 				InboundOptions: option.InboundOptions{
 					SniffEnabled:             true,
-					SniffOverrideDestination: true,
+					SniffOverrideDestination: false,
 					DomainStrategy:           inboundDomainStrategy,
 				},
 			},
@@ -468,6 +473,30 @@ func setRoutingOptions(options *option.Options, opt *ConfigOptions) {
 	routeRules := []option.Rule{}
 	rulesets := []option.RuleSet{}
 
+	if opt.EnableTun && runtime.GOOS == "android" {
+		routeRules = append(
+			routeRules,
+			option.Rule{
+				Type: C.RuleTypeDefault,
+
+				DefaultOptions: option.DefaultRule{
+					Inbound:     []string{InboundTUNTag},
+					PackageName: []string{"app.hiddify.com"},
+					Outbound:    OutboundBypassTag,
+				},
+			},
+		)
+		// routeRules = append(
+		// 	routeRules,
+		// 	option.Rule{
+		// 		Type: C.RuleTypeDefault,
+		// 		DefaultOptions: option.DefaultRule{
+		// 			ProcessName: []string{"Hiddify", "Hiddify.exe", "HiddifyCli", "HiddifyCli.exe"},
+		// 			Outbound:    OutboundBypassTag,
+		// 		},
+		// 	},
+		// )
+	}
 	routeRules = append(routeRules, option.Rule{
 		Type: C.RuleTypeDefault,
 		DefaultOptions: option.DefaultRule{
@@ -483,18 +512,7 @@ func setRoutingOptions(options *option.Options, opt *ConfigOptions) {
 			Outbound: OutboundDNSTag,
 		},
 	})
-	if opt.EnableTun {
-		routeRules = append(
-			routeRules,
-			option.Rule{
-				Type: C.RuleTypeDefault,
-				DefaultOptions: option.DefaultRule{
-					ProcessName: []string{"Hiddify", "Hiddify.exe", "HiddifyCli", "HiddifyCli.exe"},
-					Outbound:    OutboundBypassTag,
-				},
-			},
-		)
-	}
+
 	// {
 	// 	Type: C.RuleTypeDefault,
 	// 	DefaultOptions: option.DefaultRule{
@@ -532,7 +550,7 @@ func setRoutingOptions(options *option.Options, opt *ConfigOptions) {
 		case "block":
 			routeRule.Outbound = OutboundBlockTag
 		case "proxy":
-			routeRule.Outbound = OutboundDNSTag
+			routeRule.Outbound = OutboundMainProxyTag
 		}
 
 		if routeRule.IsValid() {
@@ -644,6 +662,16 @@ func setRoutingOptions(options *option.Options, opt *ConfigOptions) {
 				},
 				Outbound: OutboundBlockTag,
 			},
+		})
+		dnsRules = append(dnsRules, option.DefaultDNSRule{
+			RuleSet: []string{"geosite-ads",
+				"geosite-malware",
+				"geosite-phishing",
+				"geosite-cryptominers",
+				"geoip-malware",
+				"geoip-phishing"},
+			Server: DNSBlockTag,
+			//		DisableCache: true,
 		})
 
 	}
